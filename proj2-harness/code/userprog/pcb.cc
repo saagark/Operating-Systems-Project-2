@@ -18,17 +18,18 @@ PCB::PCB(int pid, int parentPID) : openFilesBitMap(MAX_NUM_FILES_OPEN) {
     this->pid = pid;
     this->parentPID = parentPID;
     this->process = NULL;
+    // Implement me: Implemented ->
+    //
     //openFilesBitMap maintains what has been opened.
     // Account for files that are already opened, including descriptor  0 and 1
     // Child process should inherit the file descriptors openned in the parent process
-    // Implement me
-
-
-   //More Hints:
-   // Use  openFilesBitMap.Mark() to mark 0 and 1 are used.
-   // That should be good enough to let you pass tests. 
-   // To be correct, copy the data structure for opened files from the parent.
-    
+    //More Hints:
+    // Use  openFilesBitMap.Mark() to mark 0 and 1 are used.
+    // That should be good enough to let you pass tests. 
+    // To be correct, copy the data structure for opened files from the parent.
+    openFilesBitMap.Mark(0);
+    openFilesBitMap.Mark(1);
+    //
    
 }
 

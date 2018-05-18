@@ -97,22 +97,23 @@ void ProcessManager::join(int pid) {
         conditionForOtherProcess = new Condition("");
         conditionList[pid] = conditionForOtherProcess;
     }
-   // Implement me. 
-   // Acqure the lock on this pid
+    // Implement me: Implemented ->
+    //
+    // Acquire the lock on this pid
     lockForOtherProcess->Acquire();
-   // Increase the counter processesWaitingOnPID[pid] as the number of processes waiting for this
-      processWaitingOnPID[pid]++;
-   // Conditional wait
-      conditionForOtherProcess->Wait(lockForOtherProcess);
-   // Decrease the counter processesWaitingOnPID[pid]
-      processWaitingOnPID[pid]--;
-   // If the above coutner becomes 0,  recycle pid.
-      if(processWaitingOnPID[pid]==0){
-        clearPID(pid);
-      }
-   // Release the lock on this pid
-      lockForOtherProcess->Release();
-  //  
+    // Increase the counter processesWaitingOnPID[pid] as the number of processes waiting for this
+    processWaitingOnPID[pid]++;
+    // Conditional wait
+    conditionForOtherProcess->Wait(lockForOtherProcess);
+    // Decrease the counter processesWaitingOnPID[pid]
+    processWaitingOnPID[pid]--;
+    // If the above coutner becomes 0,  recycle pid.
+    if(processWaitingOnPID[pid]==0){
+      clearPID(pid);
+    }
+    // Release the lock on this pid
+    lockForOtherProcess->Release();
+    //
 
 }
 
@@ -129,12 +130,15 @@ void ProcessManager::broadcast(int pid) {
     pcbStatuses[pid] = pcbList[pid]->status;
 
     if (condition != NULL) { // something is waiting on this process
-	// Wake up others 
-	// Implement me
-	// Acquire the lock, conditional broadcast, release lock
+      // Implement me: Implemented ->
+      //
+      // Acquire the lock
       lock->Acquire();
+      //conditional broadcast
       condition->Broadcast(lock);
+      //release lock
       lock->Release();
+      //
     }
 }
 
