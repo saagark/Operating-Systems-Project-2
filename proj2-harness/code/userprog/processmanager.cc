@@ -99,11 +99,19 @@ void ProcessManager::join(int pid) {
     }
    // Implement me. 
    // Acqure the lock on this pid
-   // Increase the counter processesWaitingOnPID[pid] as the number of processes waiting for this 
-   // Conditional wait  
+    lockForOtherProcess->Acquire();
+   // Increase the counter processesWaitingOnPID[pid] as the number of processes waiting for this
+      processWaitingOnPID[pid]++;
+   // Conditional wait
+      conditionForOtherProcess->Wait(lockForOtherProcess);
    // Decrease the counter processesWaitingOnPID[pid]
-   // If the above coutner bcomes 0,  recycle pid.
+      processWaitingOnPID[pid]--;
+   // If the above coutner becomes 0,  recycle pid.
+      if(processWaitingOnPID[pid]==0){
+        clearPID(pid);
+      }
    // Release the lock on this pid
+      lockForOtherProcess->Release();
   //  
 
 }
@@ -124,6 +132,9 @@ void ProcessManager::broadcast(int pid) {
 	// Wake up others 
 	// Implement me
 	// Acquire the lock, conditional broadcast, release lock
+      lock->Acquire();
+      condition->Broadcast(lock);
+      lock->Release();
     }
 }
 
