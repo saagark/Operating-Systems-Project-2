@@ -87,22 +87,22 @@ void ExceptionHandler(ExceptionType which)
         switch (type) { /* Find out what type of syscall we're dealing with */
 
             case SC_Halt:
-                fprintf(stderr, "System Call: %d invoked Halt\n", pcb->getPID());
+	      // fprintf(stderr, "System Call: %d invoked Halt\n", pcb->getPID());
                 interrupt->Halt();
                 break;
             case SC_Fork:
-                fprintf(stderr, "System Call: %d invoked Fork\n", pcb->getPID());
+	      // fprintf(stderr, "System Call: %d invoked Fork\n", pcb->getPID());
                 newProcessPID = forkImpl();
                 machineLock->Acquire();
                 machine->WriteRegister(2, newProcessPID);
                 machineLock->Release();
                 break;
             case SC_Yield:
-                fprintf(stderr, "System Call: %d invoked Yield\n", pcb->getPID());
+	      //fprintf(stderr, "System Call: %d invoked Yield\n", pcb->getPID());
                 yieldImpl();
                 break;
             case SC_Exec:
-                fprintf(stderr, "System Call: %d invoked Exec\n", pcb->getPID());
+	      //fprintf(stderr, "System Call: %d invoked Exec\n", pcb->getPID());
                 readFilenameFromUsertoKernel(filename);
                 newProcessPID = execImpl(filename);
                 machineLock->Acquire();
@@ -110,45 +110,45 @@ void ExceptionHandler(ExceptionType which)
                 machineLock->Release();
                 break;
             case SC_Join:
-                fprintf(stderr, "System Call: %d invoked Join\n", pcb->getPID());
+	      //fprintf(stderr, "System Call: %d invoked Join\n", pcb->getPID());
                 otherProcessStatus = joinImpl();
                 machineLock->Acquire();
                 machine->WriteRegister(2, otherProcessStatus);
                 machineLock->Release();
                 break;
             case SC_Exit:
-                fprintf(stderr, "System Call: %d invoked Exit\n", pcb->getPID());
+	      //fprintf(stderr, "System Call: %d invoked Exit\n", pcb->getPID());
                 exitImpl();
                 break;
             case SC_Create:
-                fprintf(stderr, "System Call: %d invoked Create\n", pcb->getPID());
+	      //fprintf(stderr, "System Call: %d invoked Create\n", pcb->getPID());
                 readFilenameFromUsertoKernel(filename);
                 createImpl(filename);
                 break;
             case SC_Open:
-                fprintf(stderr, "System Call: [%d] invoked Open\n", pcb->getPID());
+	      //fprintf(stderr, "System Call: [%d] invoked Open\n", pcb->getPID());
                 readFilenameFromUsertoKernel(filename);
                 copyString(filename); // copy bytes to a fresh piece of memory
                 result = openImpl(filename); 
                 machine->WriteRegister(2, result);
                 break;
             case SC_Write:
-                fprintf(stderr, "System Call: %d invoked Write\n", pcb->getPID());
+	      //fprintf(stderr, "System Call: %d invoked Write\n", pcb->getPID());
                 writeImpl();
                 break;
             case SC_Read:
-                fprintf(stderr, "System Call: %d invoked Read\n", pcb->getPID());
+	      //fprintf(stderr, "System Call: %d invoked Read\n", pcb->getPID());
                 result = readImpl();
                 machine->WriteRegister(2, result);
                 break;
             case SC_Close:
-                fprintf(stderr, "System Call: %d invoked Close\n", pcb->getPID());
+	      //fprintf(stderr, "System Call: %d invoked Close\n", pcb->getPID());
                 closeImpl();
                 break;
             default:
-                fprintf(stderr, "System Call: %d invoked an unknown syscall!\n", 
-                    pcb->getPID());
-                ASSERT(FALSE);
+	      //fprintf(stderr, "System Call: %d invoked an unknown syscall!\n", 
+	      pcb->getPID();
+	      ASSERT(FALSE);
         }
         
         IncrementPC();

@@ -108,7 +108,7 @@ void ProcessManager::join(int pid) {
     // Decrease the counter processesWaitingOnPID[pid]
     processesWaitingOnPID[pid]--;
     // If the above coutner becomes 0,  recycle pid.
-    if(processWaitingOnPID[pid]==0){
+    if(processesWaitingOnPID[pid]==0){
       clearPID(pid);
     }
     // Release the lock on this pid
