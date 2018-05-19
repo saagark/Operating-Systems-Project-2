@@ -591,12 +591,17 @@ void closeImpl() {
 
     int fileID = machine->ReadRegister(4);
 
-    
+    //Implement me: Implemented ->
+    // 
     // Find the UserOpenFile data structure of this file openned in PCB based on this fileID descriptor
+    UserOpenFile* file1 = currentThread->space->getPCB->getFile(fileID);
     // Use openFileManager's getFile method to get a pointer to the system-wide SysOpenFile  data structure
-    // Call the close method in SysOpenFile 
+    SysOpenFile* file2 = fileManager->getFile(file1->indexInSysOpenFileList);
+    // Call the close method in SysOpenFile
+    file2->closeBySingleProcess();
     // Remove the file  in the open file list of this process PCB.
-    // Implement me
+    currentThread->space->getPCB()->removeFile(fileID);
+    //
 }
 
 //----------------------------------------------------------------------
