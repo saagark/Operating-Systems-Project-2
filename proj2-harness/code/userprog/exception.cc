@@ -164,7 +164,7 @@ void ExceptionHandler(ExceptionType which)
 //----------------------------------------------------------------------
 
 int forkImpl() {
-
+  /*
     // Create a new Nacho kernel thread that will execute the new user-level child process
     Thread* childThread = new Thread("user-level child process");
 
@@ -197,7 +197,8 @@ int forkImpl() {
     // Set up the function for the that new process will run and yield
     childThread->Fork(copyStateBack, newProcessPC);
     currentThread->Yield(); 
-    return newPID;
+    return newPID;*/
+  return 0;
 }
 
 //----------------------------------------------------------------------

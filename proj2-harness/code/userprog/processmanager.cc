@@ -102,11 +102,11 @@ void ProcessManager::join(int pid) {
     // Acquire the lock on this pid
     lockForOtherProcess->Acquire();
     // Increase the counter processesWaitingOnPID[pid] as the number of processes waiting for this
-    processWaitingOnPID[pid]++;
+    processesWaitingOnPID[pid]++;
     // Conditional wait
     conditionForOtherProcess->Wait(lockForOtherProcess);
     // Decrease the counter processesWaitingOnPID[pid]
-    processWaitingOnPID[pid]--;
+    processesWaitingOnPID[pid]--;
     // If the above coutner becomes 0,  recycle pid.
     if(processWaitingOnPID[pid]==0){
       clearPID(pid);
