@@ -480,32 +480,34 @@ int userReadWrite(int virtAddr, char* buffer, int size, int type) {
     int numBytesToCopy = 0;
 
     if (type == USER_READ) { // Read and copy data from the system buffer to the user space in main memory
-        while (size > 0) {
-            //Translate the virtual address to phyiscal address physAddr 
-            //Implement me
-            numBytesFromPSLeft = PageSize - physAddr % PageSize;
-            numBytesToCopy = (numBytesFromPSLeft < size) ? numBytesFromPSLeft : size;
-            bcopy(buffer + numBytesCopied, machine->mainMemory + physAddr, numBytesToCopy);
-            numBytesCopied += numBytesToCopy;
-            size -= numBytesToCopy;
-            virtAddr += numBytesToCopy;
-        }
+      while (size > 0) {
+	//Implement me: Implemented? unsure->
+	machine->Translate(virtAddr, &physAddr, size, FALSE);
+	//
+	numBytesFromPSLeft = PageSize - physAddr % PageSize;
+	numBytesToCopy = (numBytesFromPSLeft < size) ? numBytesFromPSLeft : size;
+	bcopy(buffer + numBytesCopied, machine->mainMemory + physAddr, numBytesToCopy);
+	numBytesCopied += numBytesToCopy;
+	size -= numBytesToCopy;
+	virtAddr += numBytesToCopy;
+      }
     }
     else if (type == USER_WRITE) { // Copy data from the user's main memory to the system buffer
-        while (size > 0) {
-            //Translate the virtual address to phyiscal address physAddr 
-            //Implement me
-            numBytesFromPSLeft = PageSize - physAddr % PageSize;
-            numBytesToCopy = (numBytesFromPSLeft < size) ? numBytesFromPSLeft : size;
-            bcopy(machine->mainMemory + physAddr, buffer + numBytesCopied, numBytesToCopy);
-            numBytesCopied += numBytesToCopy;
-            size -= numBytesToCopy;
-            virtAddr += numBytesToCopy;
-        }
+      while (size > 0) {
+	//Implement me: Implemented? unsure->
+        machine->Translate(virtAddr, &physAddr, size, FALSE);
+        //
+	numBytesFromPSLeft = PageSize - physAddr % PageSize;
+	numBytesToCopy = (numBytesFromPSLeft < size) ? numBytesFromPSLeft : size;
+	bcopy(machine->mainMemory + physAddr, buffer + numBytesCopied, numBytesToCopy);
+	numBytesCopied += numBytesToCopy;
+	size -= numBytesToCopy;
+	virtAddr += numBytesToCopy;
+      }
     }
     else {
-        //printf ("Invalid type passed in.\n");
-        ASSERT(FALSE);
+      //printf ("Invalid type passed in.\n");
+      ASSERT(FALSE);
     }
     return numBytesCopied; 
 }
@@ -530,16 +532,24 @@ void writeImpl() {
         openFileManager->consoleWriteLock->Release();
     }
     else {
-       //allocate some buffer space
-        //Fetch data from the user space to this system buffer using  userReadWrite().
-        //Just two line of code
-        //Implement me
-        UserOpenFile* userFile = currentThread->space->getPCB()->getFile(fileID);
-	//Use openFileManager->getFile method  to find the openned file structure (SysOpenFile)
-	//Use SysOpenFile->file's writeAt() to write out the above buffer with size listed.
-	//Increment the current offset  by the actual number of bytes written.
-        //Just 3 lines of code
-        //Implement me
+      //Implement me: Implemented->
+      //allocate some buffer space
+      buffer = new char[size];
+      //Fetch data from the user space to this system buffer using  userReadWrite().
+      userReadWrite(writeAddr, buffer, size, USER_WRITE);
+      //Just two line of code
+      //
+
+      //Implement me: Implemented ->
+      UserOpenFile* userFile = currentThread->space->getPCB()->getFile(fileID);
+      //Use openFileManager->getFile method  to find the openned file structure (SysOpenFile)
+      SysOpenFile* sysFile = openFileManager->getFile(userFile->indexInSysOpenFileList);
+      //Use SysOpenFile->file's writeAt() to write out the above buffer with size listed.
+      int numBytesWritten = sysFile->file->WriteAt(buffer, size, userFile->currOffsetInFile);
+      //Increment the current offset  by the actual number of bytes written.
+      userFile->currOffsetInFile += numBytesWritten;
+      //Just 3 lines of code
+      //
             
         
     }
@@ -567,17 +577,22 @@ int readImpl() {
         }
     }
     else {//Read data from the file to the system buffer
-	
-	UserOpenFile* userFile = currentThread->space->getPCB()->getFile(fileID);
-	//Now from openFileManger, find the SystemOpenFile data structure for this userFile.
-	//Use ReadAt() to read the file at selected offset to this system buffer buffer[]
-	// Adust the offset in userFile to reflect my current position.
-       // The above few lines of code are very similar to ones in writeImpl()
-	// Implement me
-        
+  
+      UserOpenFile* userFile = currentThread->space->getPCB()->getFile(fileID);
+      //Implement me: Implemented ->
+      //Now from openFileManger, find the SystemOpenFile data structure for this userFile.
+      SysOpenFile* sysFile = openFileManager->getFile(userFile->indexInSysOpenFileList);
+      //Use ReadAt() to read the file at selected offset to this system buffer buffer[]
+      numActualBytesRead = sysFile->file->ReadAt(buffer, size, userFile->currOffsetInFile);
+      // Adust the offset in userFile to reflect my current position.
+      userFile->currOffsetInFile += numActualBytesRead;
+      // The above few lines of code are very similar to ones in writeImpl()
+      //       
     }
+    //Implement me: Implemented ->
     //Now copy data from the system buffer to the targted main memory space using userReadWrite()
-    //Implement me
+    userReadWrite(readAddr, buffer, numActualBytesRead, USER_READ);
+    //
 
     delete [] buffer;
     return numActualBytesRead;
@@ -594,11 +609,11 @@ void closeImpl() {
     //Implement me: Implemented ->
     // 
     // Find the UserOpenFile data structure of this file openned in PCB based on this fileID descriptor
-    UserOpenFile* file1 = currentThread->space->getPCB->getFile(fileID);
+    UserOpenFile* file1 = currentThread->space->getPCB()->getFile(fileID);
     // Use openFileManager's getFile method to get a pointer to the system-wide SysOpenFile  data structure
-    SysOpenFile* file2 = fileManager->getFile(file1->indexInSysOpenFileList);
+    SysOpenFile* file2 = openFileManager->getFile(file1->indexInSysOpenFileList);
     // Call the close method in SysOpenFile
-    file2->closeBySingleProcess();
+    file2->closedBySingleProcess();
     // Remove the file  in the open file list of this process PCB.
     currentThread->space->getPCB()->removeFile(fileID);
     //
