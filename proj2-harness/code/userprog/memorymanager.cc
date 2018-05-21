@@ -27,6 +27,7 @@ int MemoryManager::getPage() {
     if (pageIndex == -1) {
         DEBUG('m', "Unable to find a page from the page table.");
         ASSERT(FALSE);
+	return -1;
     } else {
         return pageIndex;
     }

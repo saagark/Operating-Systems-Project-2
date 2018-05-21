@@ -13,10 +13,10 @@
 //     Constructor
 //-----------------------------------------------------------------------------
 
-PCB::PCB(int pid, int parentPID) : openFilesBitMap(MAX_NUM_FILES_OPEN) {
+PCB::PCB(int pid_, int parentPID_) : openFilesBitMap(MAX_NUM_FILES_OPEN) {
 
-    this->pid = pid;
-    this->parentPID = parentPID;
+    this->pid = pid_;
+    this->parentPID = parentPID_;
     this->process = NULL;
     // Implement me: Implemented ->
     //

@@ -21,5 +21,5 @@ main()
 	Exec("exec2", 0, 0, 0);
 	Exec("exec3", 0, 0, 0);
 	print("Preparing to Halt()...\n");
-	//Halt();
+	Halt();
 }

@@ -22,8 +22,8 @@
 
 class AddrSpace {
   public:
-    AddrSpace(const AddrSpace* other, PCB* pcb);  // Copy constructor
-    AddrSpace(OpenFile *executable, PCB* pcb);// Create an address space
+    AddrSpace(const AddrSpace* other, PCB* pcb_);  // Copy constructor
+    AddrSpace(OpenFile *executable, PCB* pcb_);// Create an address space
     ~AddrSpace();			// De-allocate an address space
 
     int Translate(int virtualAddress);  // Translates a virtual to physical addr

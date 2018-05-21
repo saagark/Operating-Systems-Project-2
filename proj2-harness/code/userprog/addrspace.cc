@@ -61,11 +61,10 @@ SwapHeader (NoffHeader *noffH)
 //  "executable" is the file containing the object code to load into memory
 //----------------------------------------------------------------------
 
-AddrSpace::AddrSpace(OpenFile *executable, PCB* pcb)
+AddrSpace::AddrSpace(OpenFile *executable, PCB* pcb_)
 {
     NoffHeader noffH;
     unsigned int i, size;
-    int read;
 
     executable->ReadAt((char *)&noffH, sizeof(noffH), 0);
     if ((noffH.noffMagic != NOFFMAGIC) && 
@@ -91,7 +90,7 @@ AddrSpace::AddrSpace(OpenFile *executable, PCB* pcb)
 
     if (numPages <= (unsigned int)memoryManager->getNumFreePages()) {
 
-        this->pcb = pcb;
+        this->pcb = pcb_;
 
         // Set up the page table
         pageTable = new TranslationEntry[numPages];
@@ -121,13 +120,13 @@ AddrSpace::AddrSpace(OpenFile *executable, PCB* pcb)
         if (noffH.code.size > 0) {
             DEBUG('a', "Initializing code segment, at 0x%x, size %d\n", 
                 noffH.code.virtualAddr, noffH.code.size);
-            read = ReadFile(noffH.code.virtualAddr,executable,noffH.code.size,
+            ReadFile(noffH.code.virtualAddr,executable,noffH.code.size,
                 noffH.code.inFileAddr);
         }
         if (noffH.initData.size > 0) {
             DEBUG('a', "Initializing data segment, at 0x%x, size %d\n", 
                 noffH.initData.virtualAddr, noffH.initData.size);
-            read = ReadFile(noffH.initData.virtualAddr,executable,
+            ReadFile(noffH.initData.virtualAddr,executable,
                 noffH.initData.size,noffH.initData.inFileAddr);
         }
     }
@@ -135,8 +134,9 @@ AddrSpace::AddrSpace(OpenFile *executable, PCB* pcb)
     else { // Not enough free pages to acquire.
         memoryManager->lock->Release();
         pageTable = NULL;
-        pcb = new PCB(-1,-1);
+        this->pcb = new PCB(-1,-1);
     }
+  
 }
 
 //----------------------------------------------------------------------
@@ -144,8 +144,24 @@ AddrSpace::AddrSpace(OpenFile *executable, PCB* pcb)
 //     Copy constructor that makes an identical copy of "other" address space.
 //----------------------------------------------------------------------
 
-AddrSpace::AddrSpace(const AddrSpace* other, PCB* pcb) {
-    
+AddrSpace::AddrSpace(const AddrSpace* other, PCB* pcb_) {
+    this->numPages = other->numPages;
+    this->pcb = pcb_;
+    memoryManager->lock->Acquire();
+    this->pageTable = new TranslationEntry[numPages];
+    for (int i = 0; i < numPages; i++) {
+        pageTable[i].virtualPage = other->pageTable[i].virtualPage; 
+        pageTable[i].physicalPage = memoryManager -> getPage(); //Get the next avail. phys. frame
+        int physAddrSrc = other->pageTable[i].physicalPage * PageSize;
+        int physAddrDest = this->pageTable[i].physicalPage * PageSize;
+        bcopy(&(machine->mainMemory[physAddrSrc]), &(machine->mainMemory[physAddrDest]), PageSize);
+        pageTable[i].valid = TRUE;
+        pageTable[i].use = FALSE;
+        pageTable[i].dirty = FALSE;
+        pageTable[i].readOnly = FALSE;
+    }
+    memoryManager->lock->Release();
+  /*    
     ASSERT(other->numPages <= NumPhysPages);
 
     // Copy all page table entries over, create associated PCB
@@ -155,25 +171,44 @@ AddrSpace::AddrSpace(const AddrSpace* other, PCB* pcb) {
 
     if (numPages <= (unsigned int)memoryManager->getNumFreePages()) {
 
-        this->pcb = pcb;
+        this->pcb = pcb_;
         pageTable = new TranslationEntry[numPages];
+	//Implement me: Implemented ->
+	//
 	//Allocate physical pages for each page in the new process under pcb
-	//Implement me
+	for (unsigned int i = 0; i < numPages; i++) { 
+	  pageTable[i].physicalPage = memoryManager -> getPage();
+	}
+	//
 	
         memoryManager->lock->Release();
-
-        machineLock->Acquire();
+	machineLock->Acquire();
+	//Implement me: Implemented ->
+	//
 	//Copy page content of the other process to the new address space page by page
-        //Implement me
-        
-        machineLock->Release();
+	for (unsigned int i = 0; i < numPages; i++) {
+	  pageTable[i].virtualPage = other->pageTable[i].virtualPage;
+	  pageTable[i].valid = TRUE;
+          pageTable[i].use = FALSE;
+          pageTable[i].dirty = FALSE;
+          pageTable[i].readOnly = FALSE;
+	  int otherPhysAddr = other->pageTable[i].physicalPage * PageSize;
+	  int newPhysAddr = this->pageTable[i].physicalPage * PageSize;
+	  bcopy(&(machine->mainMemory[otherPhysAddr]), &(machine->mainMemory[newPhysAddr]), PageSize);
+	  
+	}
+	
+	
+	//
+	machineLock->Release();
     }
+
     else {// Cannot fit into the current available memory
         memoryManager->lock->Release();
         pageTable = NULL;
-        pcb = new PCB(-1,-1);
+        this->pcb = new PCB(-1,-1);
     }
-
+  */
 }
 
 //----------------------------------------------------------------------

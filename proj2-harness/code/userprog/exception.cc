@@ -179,15 +179,20 @@ int forkImpl() {
     int parentPID = currentThread->space->getPCB()->getPID();
     //then construct new PCB.
     PCB* newPCB = new PCB(newPID, parentPID);
+    newPCB->status = P_RUNNING;
+    newPCB->process = childThread;
+    processManager->addProcess(newPCB, newPID);
     //
     DEBUG('a',"vars allocated");
     // Implement me: Implementation not completed
     //
     // After finding out your own PID, call new AddrSpace() to create a new space
-    childThread->space=new AddrSpace(currentThread->space, newPCB);
     // Make a copy of the address space as the child space, save its registers
+    childThread->space=new AddrSpace(currentThread->space, newPCB);
     int childNumPages = childThread->space->getNumPages();
-
+    childThread->SaveUserState();
+    //
+    
     // Mandatory printout of the forked process
     PCB* parentPCB = currentThread->space->getPCB();
     PCB* childPCB = childThread->space->getPCB();
@@ -197,7 +202,6 @@ int forkImpl() {
     // Set up the function for the that new process will run and yield
     childThread->Fork(copyStateBack, newProcessPC);
     currentThread->Yield();
-    printf("returned1\n"); 
     return newPID;
     //return 0;
 }
@@ -342,7 +346,7 @@ SpaceId execImpl(char* filename) {
     // Close file and execute new process
     delete fileToExecute;
     fprintf(stderr, "Exec Program: %d loading %s\n", currPID, filename);
-    newThread->Fork(execHelper, NULL);
+    newThread->Fork(execHelper, 0);
     currentThread->Yield();
     return newPID;
 }
@@ -483,7 +487,7 @@ int userReadWrite(int virtAddr, char* buffer, int size, int type) {
 
     if (type == USER_READ) { // Read and copy data from the system buffer to the user space in main memory
       while (size > 0) {
-	//Implement me: Implemented? unsure->
+	//Implement me: Implemented->
 	machine->Translate(virtAddr, &physAddr, size, FALSE);
 	//
 	numBytesFromPSLeft = PageSize - physAddr % PageSize;
