@@ -61,7 +61,7 @@ SwapHeader (NoffHeader *noffH)
 //  "executable" is the file containing the object code to load into memory
 //----------------------------------------------------------------------
 
-AddrSpace::AddrSpace(OpenFile *executable, PCB* pcb_)
+AddrSpace::AddrSpace(OpenFile *executable, PCB* pcb)
 {
     NoffHeader noffH;
     unsigned int i, size;
@@ -91,7 +91,7 @@ AddrSpace::AddrSpace(OpenFile *executable, PCB* pcb_)
 
     if (numPages <= (unsigned int)memoryManager->getNumFreePages()) {
 
-        this->pcb = pcb_;
+        this->pcb = pcb;
 
         // Set up the page table
         pageTable = new TranslationEntry[numPages];
@@ -135,7 +135,7 @@ AddrSpace::AddrSpace(OpenFile *executable, PCB* pcb_)
     else { // Not enough free pages to acquire.
         memoryManager->lock->Release();
         pageTable = NULL;
-        pcb_ = new PCB(-1,-1);
+        pcb = new PCB(-1,-1);
     }
 }
 

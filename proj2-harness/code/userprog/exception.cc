@@ -165,7 +165,7 @@ void ExceptionHandler(ExceptionType which)
 //----------------------------------------------------------------------
 
 int forkImpl() {
-  
+    DEBUG('a',"Entering forkImpl");
     // Create a new Nacho kernel thread that will execute the new user-level child process
     Thread* childThread = new Thread("user-level child process");
 
@@ -180,25 +180,26 @@ int forkImpl() {
     //then construct new PCB.
     PCB* newPCB = new PCB(newPID, parentPID);
     //
-    
+    DEBUG('a',"vars allocated");
     // Implement me: Implementation not completed
     //
     // After finding out your own PID, call new AddrSpace() to create a new space
     childThread->space=new AddrSpace(currentThread->space, newPCB);
     // Make a copy of the address space as the child space, save its registers
     int childNumPages = childThread->space->getNumPages();
-    
+
     // Mandatory printout of the forked process
     PCB* parentPCB = currentThread->space->getPCB();
     PCB* childPCB = childThread->space->getPCB();
     fprintf(stderr, "Process %d Fork: start at address 0x%x with %d pages memory\n",
      	 parentPID, newProcessPC, childNumPages); //currPID->parentPID
-      
+    //TODO:  Fork isn't working here...  
     // Set up the function for the that new process will run and yield
     childThread->Fork(copyStateBack, newProcessPC);
-    currentThread->Yield(); 
+    currentThread->Yield();
+    printf("returned1\n"); 
     return newPID;
-  //return 0;
+    //return 0;
 }
 
 //----------------------------------------------------------------------
