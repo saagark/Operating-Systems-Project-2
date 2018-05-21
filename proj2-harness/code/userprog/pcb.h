@@ -36,7 +36,8 @@ class PCB {
         BitMap openFilesBitMap;
         int pid;
         int parentPID;
-        UserOpenFile userOpenFileList[MAX_NUM_FILES_OPEN];
+        int kernelThreadID;
+	UserOpenFile userOpenFileList[MAX_NUM_FILES_OPEN];
 };
 
 #endif // PCB_H

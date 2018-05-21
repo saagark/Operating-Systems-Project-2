@@ -61,7 +61,7 @@ SwapHeader (NoffHeader *noffH)
 //  "executable" is the file containing the object code to load into memory
 //----------------------------------------------------------------------
 
-AddrSpace::AddrSpace(OpenFile *executable, PCB* pcb)
+AddrSpace::AddrSpace(OpenFile *executable, PCB* pcb_)
 {
     NoffHeader noffH;
     unsigned int i, size;
@@ -89,9 +89,9 @@ AddrSpace::AddrSpace(OpenFile *executable, PCB* pcb)
     DEBUG('a', "Initializing address space, num pages %d, size %d\n", 
           numPages, size);
 
-    if (numPages <= memoryManager->getNumFreePages()) {
+    if (numPages <= (unsigned int)memoryManager->getNumFreePages()) {
 
-        this->pcb = pcb;
+        this->pcb = pcb_;
 
         // Set up the page table
         pageTable = new TranslationEntry[numPages];
@@ -135,7 +135,7 @@ AddrSpace::AddrSpace(OpenFile *executable, PCB* pcb)
     else { // Not enough free pages to acquire.
         memoryManager->lock->Release();
         pageTable = NULL;
-        pcb = new PCB(-1,-1);
+        pcb_ = new PCB(-1,-1);
     }
 }
 
@@ -153,7 +153,7 @@ AddrSpace::AddrSpace(const AddrSpace* other, PCB* pcb) {
     memoryManager->lock->Acquire();
     DEBUG('a', "Initializing address space with num pages: %d.\n", numPages);
 
-    if (numPages <= memoryManager->getNumFreePages()) {
+    if (numPages <= (unsigned int)memoryManager->getNumFreePages()) {
 
         this->pcb = pcb;
         pageTable = new TranslationEntry[numPages];
@@ -185,7 +185,7 @@ AddrSpace::~AddrSpace()
 {
     if (isValid()) {
         memoryManager->lock->Acquire();
-        for (int i = 0; i < numPages; i++) { // free the pages
+        for (unsigned int i = 0; i < numPages; i++) { // free the pages
             memoryManager->clearPage(pageTable[i].physicalPage);
         }
         memoryManager->lock->Release();
@@ -268,7 +268,7 @@ int AddrSpace::Translate(int virtualAddress) {
     int offset = virtualAddress % PageSize;
     int physicalAddress = 0;
 
-    if (virtualAddress < 0 || pageTableIndex > numPages) {
+    if (virtualAddress < 0 || (unsigned int)pageTableIndex > numPages) {
         physicalAddress = -1;
     } else {
         physicalAddress = 

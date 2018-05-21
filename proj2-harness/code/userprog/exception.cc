@@ -74,9 +74,10 @@ void ExceptionHandler(ExceptionType which)
     int otherProcessStatus = 0;
     int result = 0;
 
-    int arg1 = 0;
-    int arg2 = 0;
-    int arg3 = 0;
+    //int arg1 = machine->ReadRegister(4);
+    //int arg2 = machine->ReadRegister(5);
+    //int arg3 = machine->ReadRegister(6);
+    //int arg4 = machine->ReadRegister(7);
     char* filename = new char[MAX_FILENAME_LEN];
 
     int type = machine->ReadRegister(2);
@@ -164,7 +165,7 @@ void ExceptionHandler(ExceptionType which)
 //----------------------------------------------------------------------
 
 int forkImpl() {
-  /*
+  
     // Create a new Nacho kernel thread that will execute the new user-level child process
     Thread* childThread = new Thread("user-level child process");
 
@@ -185,20 +186,19 @@ int forkImpl() {
     // After finding out your own PID, call new AddrSpace() to create a new space
     childThread->space=new AddrSpace(currentThread->space, newPCB);
     // Make a copy of the address space as the child space, save its registers
-    
-    //
+    int childNumPages = childThread->space->getNumPages();
     
     // Mandatory printout of the forked process
     PCB* parentPCB = currentThread->space->getPCB();
     PCB* childPCB = childThread->space->getPCB();
     fprintf(stderr, "Process %d Fork: start at address 0x%x with %d pages memory\n",
-     	 currPID, newProcessPC, childNumPages);
+     	 parentPID, newProcessPC, childNumPages); //currPID->parentPID
       
     // Set up the function for the that new process will run and yield
     childThread->Fork(copyStateBack, newProcessPC);
     currentThread->Yield(); 
-    return newPID;*/
-  return 0;
+    return newPID;
+  //return 0;
 }
 
 //----------------------------------------------------------------------
