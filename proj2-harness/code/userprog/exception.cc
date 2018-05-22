@@ -272,8 +272,8 @@ void exitImpl() {
     processManager->clearPID(currPID);
 
     //Terminate the current Nacho thread
-    if(currPID == 0)
-        interrupt->Halt();
+    //if(currPID == 0)
+    //  interrupt->Halt();
     currentThread->Finish();
     
 }
