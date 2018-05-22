@@ -185,7 +185,7 @@ int forkImpl() {
     processManager->addProcess(newPCB, newPID);
     //
     DEBUG('a',"vars allocated");
-    // Implement me: Implementation not completed
+    // Implement me: Implemented->
     //
     // After finding out your own PID, call new AddrSpace() to create a new space
     // Make a copy of the address space as the child space, save its registers
@@ -282,13 +282,16 @@ void exitImpl() {
 //----------------------------------------------------------------------
 
 int joinImpl() {
-
     int otherPID = machine->ReadRegister(4);
 
     //Implement me: Implemented ->
     //
     //Change the process state in its PCB as P_BLOCKED
     currentThread->space->getPCB()->status = P_BLOCKED;
+    int status = processManager->getStatus(otherPID);
+    if(status<0){
+      return processManager->getStatus(otherPID);
+    }
     // Use processManager to join otherPID
     processManager->join(otherPID);
     //Change the process state in its PCB as P_RUNNING

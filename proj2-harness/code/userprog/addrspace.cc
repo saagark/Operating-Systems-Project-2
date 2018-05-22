@@ -145,6 +145,7 @@ AddrSpace::AddrSpace(OpenFile *executable, PCB* pcb_)
 //----------------------------------------------------------------------
 
 AddrSpace::AddrSpace(const AddrSpace* other, PCB* pcb_) {
+  /*
     this->numPages = other->numPages;
     this->pcb = pcb_;
     memoryManager->lock->Acquire();
@@ -161,7 +162,8 @@ AddrSpace::AddrSpace(const AddrSpace* other, PCB* pcb_) {
         pageTable[i].readOnly = FALSE;
     }
     memoryManager->lock->Release();
-  /*    
+  */
+      
     ASSERT(other->numPages <= NumPhysPages);
 
     // Copy all page table entries over, create associated PCB
@@ -208,7 +210,7 @@ AddrSpace::AddrSpace(const AddrSpace* other, PCB* pcb_) {
         pageTable = NULL;
         this->pcb = new PCB(-1,-1);
     }
-  */
+  
 }
 
 //----------------------------------------------------------------------
