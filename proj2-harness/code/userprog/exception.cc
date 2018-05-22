@@ -199,8 +199,6 @@ int forkImpl() {
     PCB* childPCB = childThread->space->getPCB();
     fprintf(stderr, "Process %d Fork: start at address 0x%x with %d pages memory\n",
      	 parentPID, newProcessPC, childNumPages); //currPID->parentPID
-    //TODO:  Fork isn't working here...  
-    // Set up the function for the that new process will run and yield
     childThread->Fork(copyStateBack, newProcessPC);
     currentThread->Yield();
     return newPID;
@@ -272,9 +270,12 @@ void exitImpl() {
     delete currentThread->space;
     currentThread->space = NULL;
     processManager->clearPID(currPID);
-    
+
     //Terminate the current Nacho thread
+    if(currPID == 0)
+        interrupt->Halt();
     currentThread->Finish();
+    
 }
 
 //----------------------------------------------------------------------
@@ -319,7 +320,7 @@ void execHelper(int uselessArg) {
 //----------------------------------------------------------------------
 
 SpaceId execImpl(char* filename) {
-
+   
     int currPID = currentThread->space->getPCB()->getPID();
 
     // Open the file
@@ -351,6 +352,7 @@ SpaceId execImpl(char* filename) {
     delete fileToExecute;
     fprintf(stderr, "Exec Program: %d loading %s\n", currPID, filename);
     newThread->Fork(execHelper, 0);
+    //yieldImpl();
     currentThread->Yield();
     return newPID;
 }

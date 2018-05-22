@@ -145,24 +145,6 @@ AddrSpace::AddrSpace(OpenFile *executable, PCB* pcb_)
 //----------------------------------------------------------------------
 
 AddrSpace::AddrSpace(const AddrSpace* other, PCB* pcb_) {
-  /*
-    this->numPages = other->numPages;
-    this->pcb = pcb_;
-    memoryManager->lock->Acquire();
-    this->pageTable = new TranslationEntry[numPages];
-    for (int i = 0; i < numPages; i++) {
-        pageTable[i].virtualPage = other->pageTable[i].virtualPage; 
-        pageTable[i].physicalPage = memoryManager -> getPage(); //Get the next avail. phys. frame
-        int physAddrSrc = other->pageTable[i].physicalPage * PageSize;
-        int physAddrDest = this->pageTable[i].physicalPage * PageSize;
-        bcopy(&(machine->mainMemory[physAddrSrc]), &(machine->mainMemory[physAddrDest]), PageSize);
-        pageTable[i].valid = TRUE;
-        pageTable[i].use = FALSE;
-        pageTable[i].dirty = FALSE;
-        pageTable[i].readOnly = FALSE;
-    }
-    memoryManager->lock->Release();
-  */
       
     ASSERT(other->numPages <= NumPhysPages);
 
